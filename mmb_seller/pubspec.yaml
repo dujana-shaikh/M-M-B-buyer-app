@@ -1,0 +1,27 @@
+name: mmb_seller
+description: MMB Seller App - Mumbai Mobile Bazar (distributors)
+publish_to: none
+version: 0.1.0+1
+
+environment:
+  sdk: ">=3.3.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  mmb_core:
+    path: ../packages/mmb_core
+  firebase_core: ^3.4.0
+  firebase_auth: ^5.2.0
+  cloud_firestore: ^5.4.0
+  firebase_storage: ^12.2.0
+  flutter_riverpod: ^2.5.1
+  image_picker: ^1.1.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true

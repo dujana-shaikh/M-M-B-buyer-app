@@ -1,0 +1,68 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "mmb_buyer",
+            "cwd": "mmb_buyer",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "mmb_buyer (profile mode)",
+            "cwd": "mmb_buyer",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "mmb_buyer (release mode)",
+            "cwd": "mmb_buyer",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "mmb_seller",
+            "cwd": "mmb_seller",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "mmb_seller (profile mode)",
+            "cwd": "mmb_seller",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "mmb_seller (release mode)",
+            "cwd": "mmb_seller",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        },
+        {
+            "name": "mmb_core",
+            "cwd": "packages\\mmb_core",
+            "request": "launch",
+            "type": "dart"
+        },
+        {
+            "name": "mmb_core (profile mode)",
+            "cwd": "packages\\mmb_core",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "mmb_core (release mode)",
+            "cwd": "packages\\mmb_core",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}

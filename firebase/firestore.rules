@@ -1,0 +1,75 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function isAdmin() { return signedIn() && request.auth.token.admin == true; }
+    function userDoc() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data; }
+    function isApprovedSeller() {
+      return signedIn() && userDoc().role == 'seller' && userDoc().status == 'approved';
+    }
+
+    // ---------- USERS ----------
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      // Self-registration: only buyer/seller roles, fixed initial status.
+      allow create: if signedIn() && request.auth.uid == uid
+        && request.resource.data.role in ['buyer', 'seller']
+        && ((request.resource.data.role == 'seller' && request.resource.data.status == 'pending')
+         || (request.resource.data.role == 'buyer'  && request.resource.data.status == 'approved'));
+      // Users may NOT change their own role or status.
+      allow update: if (request.auth.uid == uid
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'status', 'uid']))
+        || isAdmin();
+      allow delete: if isAdmin();
+
+      match /cart/{itemId} {
+        allow read, write: if signedIn() && request.auth.uid == uid;
+      }
+      match /favorites/{productId} {
+        allow read, write: if signedIn() && request.auth.uid == uid;
+      }
+    }
+
+    // ---------- PRODUCTS ----------
+    match /products/{productId} {
+      // Buyers: only admin-approved products. Sellers: ONLY their own (any status).
+      // Queries must include where('status','==','approved') (buyer)
+      // or where('sellerId','==',uid) (seller) to satisfy these rules.
+      allow read: if isAdmin()
+        || (signedIn() && resource.data.sellerId == request.auth.uid)
+        || (signedIn() && resource.data.status == 'approved');
+
+      allow create: if isApprovedSeller()
+        && request.resource.data.sellerId == request.auth.uid
+        && request.resource.data.status == 'pending';
+
+      allow update: if isAdmin()
+        || (isApprovedSeller()
+            && resource.data.sellerId == request.auth.uid
+            && request.resource.data.sellerId == resource.data.sellerId
+            && request.resource.data.status == resource.data.status);
+
+      allow delete: if isAdmin()
+        || (isApprovedSeller() && resource.data.sellerId == request.auth.uid);
+    }
+
+    // ---------- ENQUIRIES / ORDERS ----------
+    match /enquiries/{id} {
+      allow read: if isAdmin()
+        || (signedIn() && (resource.data.buyerId == request.auth.uid
+                        || resource.data.sellerId == request.auth.uid));
+      allow create: if signedIn() && request.resource.data.buyerId == request.auth.uid
+        && request.resource.data.status == 'new';
+      // Seller can only update the status of enquiries addressed to them.
+      allow update: if isAdmin()
+        || (signedIn() && resource.data.sellerId == request.auth.uid
+            && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'updatedAt']));
+    }
+
+    // ---------- ADMIN-MANAGED CONTENT ----------
+    match /categories/{id}    { allow read: if signedIn(); allow write: if isAdmin(); }
+    match /banners/{id}       { allow read: if signedIn(); allow write: if isAdmin(); }
+    match /announcements/{id} { allow read: if signedIn(); allow write: if isAdmin(); }
+  }
+}
